@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz de Computación en la Nube</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 24px;
+      color: #172033;
+    }
+    main {
+      max-width: 650px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px #0001;
+    }
+    h1 { color: #174ea6; }
+    .opcion {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .opcion:hover { background: #dbeafe; }
+    .seleccionada {
+      background: #bfdbfe;
+      border-color: #2563eb;
+    }
+    #siguiente {
+      background: #174ea6;
+      color: white;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    #siguiente:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+    #estado { color: #64748b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Computación en la Nube</h1>
+    <p>Simulador interactivo de preguntas</p>
+    <hr>
+
+    <p id="estado">Cargando preguntas...</p>
+    <h2 id="pregunta"></h2>
+    <div id="opciones"></div>
+    <button id="siguiente" disabled>
+      Siguiente pregunta
+    </button>
+  </main>
+
+  <script>
+    let preguntas = [];
+    let actual = 0;
+    let respuesta = null;
+
+    const estado = document.getElementById("estado");
+    const pregunta = document.getElementById("pregunta");
+    const opciones = document.getElementById("opciones");
+    const siguiente = document.getElementById("siguiente");
+
+    async function iniciar() {
+      try {
+        const respuestaAPI = await fetch("./questions.json");
+        if (!respuestaAPI.ok) {
+          throw new Error("No se pudo cargar questions.json");
+        }
+
+        const datos = await respuestaAPI.json();
+        preguntas = Array.isArray(datos) ? datos : [];
+
+        if (!preguntas.length) {
+          throw new Error("El archivo no contiene preguntas");
+        }
+
+        mostrarPregunta();
+      } catch (error) {
+        estado.textContent = "Error al cargar las preguntas";
+        pregunta.textContent = error.message;
+      }
+    }
+
+    function mostrarPregunta() {
+      const item = preguntas[actual];
+      respuesta = null;
+      siguiente.disabled = true;
+
+      estado.textContent =
+        `Pregunta ${actual + 1} de ${preguntas.length}`;
+
+      pregunta.textContent = item.q;
+      opciones.innerHTML = "";
+
+      item.a.forEach((texto, indice) => {
+        const boton = document.createElement("button");
+        boton.className = "opcion";
+        boton.textContent = texto;
+
+        boton.onclick = () => {
+          respuesta = indice;
+          document.querySelectorAll(".opcion")
+            .forEach(b => b.classList.remove("seleccionada"));
+
+          boton.classList.add("seleccionada");
+          siguiente.disabled = false;
+        };
+
+        opciones.appendChild(boton);
+      });
+
+      siguiente.textContent =
+        actual === preguntas.length - 1
+          ? "Finalizar"
+          : "Siguiente pregunta";
+    }
+
+    siguiente.onclick = () => {
+      if (respuesta === null) return;
+
+      actual++;
+
+      if (actual < preguntas.length) {
+        mostrarPregunta();
+      } else {
+        estado.textContent = "Cuestionario finalizado";
+        pregunta.textContent = "¡Terminaste!";
+        opciones.textContent =
+          "Has respondido todas las preguntas.";
+        siguiente.textContent = "Volver a empezar";
+        siguiente.disabled = false;
+        siguiente.onclick = () => location.reload();
+      }
+    };
+
+    iniciar();
+  </script>
+</body>
+</html>
