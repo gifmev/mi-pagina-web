@@ -1,0 +1,5 @@
+[
+  { "id": "Q-C06-001", "bloque": "T", "q": "¿Qué modelo de servicio de nube te entrega la plataforma lista para desplegar código sin administrar servidores?", "a": ["IaaS", "PaaS", "SaaS", "On-premises"], "t": 45 },
+  { "id": "Q-C06-002", "bloque": "CLF", "q": "¿Qué servicio de AWS almacena objetos con alta durabilidad?", "a": ["Amazon EBS", "Amazon RDS", "Amazon S3", "Amazon VPC"], "t": 30 },
+  { "id": "Q-C06-003", "bloque": "AIF", "q": "¿Cómo se llama el proceso de ajustar un modelo ya entrenado con datos propios?", "a": ["Inferencia", "Ajuste fino", "Tokenización", "Muestreo"], "t": 40 }
+]
